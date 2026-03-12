@@ -137,7 +137,7 @@ public readonly struct CustomEnergyCounter(Func<int, string> pathFunc, Color out
 
 [HarmonyPatch(typeof(NEnergyCounter), "OutlineColor", MethodType.Getter)]
 public class EnergyCounterOutlineColorPatch {
-    private static readonly PropertyInfo? PlayerProp = typeof(NEnergyCounter).GetProperty("_player", BindingFlags.NonPublic | BindingFlags.Instance);
+    private static readonly FieldInfo? PlayerProp = typeof(NEnergyCounter).GetField("_player", BindingFlags.NonPublic | BindingFlags.Instance);
 
     static bool Prefix(NEnergyCounter __instance, ref Color __result) {
         if (PlayerProp?.GetValue(__instance) is Player player && player.Character is CustomCharacterModel model && model.CustomEnergyCounter is CustomEnergyCounter counter) {
