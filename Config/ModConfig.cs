@@ -121,6 +121,7 @@ public abstract partial class ModConfig
         if (_fileActive ||!File.Exists(_path)) return;
         
         _fileActive = true;
+        var hadError = false;
         
         try
         {
@@ -140,6 +141,7 @@ public abstract partial class ModConfig
                             if (configVal == null)
                             {
                                 MainFile.Logger.Warn($"Failed to load saved config value \"{value}\" for property {property.Name}");
+                                hadError = true;
                                 continue;
                             }
                         
@@ -152,6 +154,7 @@ public abstract partial class ModConfig
                         catch (Exception)
                         {
                             MainFile.Logger.Warn($"Failed to load saved config value \"{value}\" for property {property.Name}");
+                            hadError = true;
                         }
                     }
                 }
@@ -159,13 +162,19 @@ public abstract partial class ModConfig
                 MainFile.Logger.Info($"Loaded config {GetType().Name} successfully");
             }
         }
-        catch (Exception e)
+        catch (Exception)
         {
             MainFile.Logger.Error("Failed to load config; most likely config types were changed.");
-            MainFile.Logger.Error(e.Message);
+            hadError = true;
         }
         
         _fileActive = false;
+
+        if (hadError)
+        {
+            MainFile.Logger.Error("Error occured loading config; saving new config.");
+            await Save();
+        }
     }
 
     private string GetLabelText(PropertyInfo property)
