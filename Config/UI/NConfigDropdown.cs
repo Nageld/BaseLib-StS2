@@ -28,10 +28,11 @@ public partial class NConfigDropdown : NSettingsDropdown
     {
         base._Process(delta);
 
-        if (DropdownContainerField.GetValue(this) is Control { Visible: true } &&
-            Mathf.Abs(_lastGlobalY - GlobalPosition.Y) > 0.5f)
+        if (DropdownContainerField.GetValue(this) is Control { Visible: true } container)
         {
-            CloseDropdown();
+            // Ensure the list of items follows the dropdown itself when the parent container is scrolled.
+            // GlobalPosition/TopLevel is used to override the clipping from NModConfigPopup's edges.
+            container.GlobalPosition = GlobalPosition + new Vector2(0, Size.Y);
         }
 
         _lastGlobalY = GlobalPosition.Y;

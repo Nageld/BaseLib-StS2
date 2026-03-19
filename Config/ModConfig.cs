@@ -22,11 +22,13 @@ public abstract partial class ModConfig
     public event EventHandler? ConfigChanged;
 
     private readonly string _path;
+    protected string ModPrefix { get; private set; }
 
     protected readonly List<PropertyInfo> ConfigProperties = [];
 
     public ModConfig(string? filename = null)
     {
+        ModPrefix = GetType().GetPrefix();
         _path = GetType().GetRootNamespace();
         if (_path == "") _path = "Unknown";
         
@@ -106,7 +108,7 @@ public abstract partial class ModConfig
         }
         catch (Exception e)
         {
-            MainFile.Logger.Error($"Failed to save config {GetType().Name};");
+            MainFile.Logger.Error($"Failed to save config {GetType().FullName}:");
             MainFile.Logger.Error(e.ToString());
         }
 
@@ -156,7 +158,7 @@ public abstract partial class ModConfig
                     }
                 }
                 
-                MainFile.Logger.Info($"Loaded config {GetType().Name} successfully");
+                MainFile.Logger.Info($"Loaded config {GetType().FullName} successfully");
             }
         }
         catch (Exception)
@@ -177,8 +179,7 @@ public abstract partial class ModConfig
     protected string GetLabelText(string labelName)
     {
         if (labelName.Contains(' ')) return labelName;
-        var prefix = GetType().GetPrefix();
-        var loc = LocString.GetIfExists("settings_ui", prefix + StringHelper.Slugify(labelName) + ".title");
+        var loc = LocString.GetIfExists("settings_ui", ModPrefix + StringHelper.Slugify(labelName) + ".title");
         return loc != null ? loc.GetFormattedText() : labelName;
     }
 
@@ -223,7 +224,6 @@ public abstract partial class ModConfig
     {
         List<NConfigDropdownItem.ConfigDropdownItem> items = [];
         var type = property.PropertyType;
-        var prefix = GetType().GetPrefix();
         var currentValue = property.GetValue(null);
         int count = 0;
         currentIndex = 0;
@@ -237,7 +237,7 @@ public abstract partial class ModConfig
                     currentIndex = count;
                 }
                 ++count;
-                var loc = LocString.GetIfExists("settings_ui", $"{prefix}{StringHelper.Slugify(property.Name)}.{value}");
+                var loc = LocString.GetIfExists("settings_ui", $"{ModPrefix}{StringHelper.Slugify(property.Name)}.{value}");
                 items.Add(new(loc?.GetRawText() ?? value?.ToString() ?? "UNKNOWN", () => property.SetValue(null, value)));
             }
         }

@@ -77,8 +77,7 @@ public class SimpleModConfig : ModConfig
     {
         var control = controlCreator.Invoke(property);
         var label = CreateRawLabelControl(GetLabelText(property.Name), 28);
-        var modPrefix = GetType().GetPrefix();
-        var option = new NConfigOptionRow(modPrefix, property, label, control);
+        var option = new NConfigOptionRow(ModPrefix, property, label, control);
         if (addHoverTip) option.AddHoverTip();
         return option;
     }
@@ -148,13 +147,13 @@ public class SimpleModConfig : ModConfig
 
                 if (previousSetting != null)
                 {
-                    NodePath path = currentSetting.GetPathTo(previousSetting);
-                    currentSetting.FocusNeighborLeft ??= path;
-                    currentSetting.FocusNeighborTop ??= path;
+                    var path = currentSetting.GetPathTo(previousSetting);
+                    if (currentSetting.FocusNeighborLeft?.IsEmpty != false) currentSetting.FocusNeighborLeft = path;
+                    if (currentSetting.FocusNeighborTop?.IsEmpty != false) currentSetting.FocusNeighborTop = path;
 
                     path = previousSetting.GetPathTo(currentSetting);
-                    previousSetting.FocusNeighborRight ??= path;
-                    previousSetting.FocusNeighborBottom ??= path;
+                    if (previousSetting.FocusNeighborRight?.IsEmpty != false) previousSetting.FocusNeighborRight = path;
+                    if (previousSetting.FocusNeighborBottom?.IsEmpty != false) previousSetting.FocusNeighborBottom = path;
                 }
             }
             catch (NotSupportedException ex)
